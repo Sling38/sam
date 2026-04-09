@@ -8,6 +8,41 @@ def load_bits(filepath):
     # Remove any newlines or spaces – keep only 0/1
     return ''.join(ch for ch in content if ch in '01')
 
+def calculate_ber(zeros, ones, num_trials):
+    """Calculate Bit Error Rate: average instability across all bits"""
+    total_bits = len(zeros)
+    total_errors = 0
+    
+    for i in range(total_bits):
+        # BER for a single bit is the minority count / total trials
+        # This represents the probability of bit flip
+        minority_count = min(zeros[i], ones[i])
+        total_errors += minority_count
+    
+    return total_errors / (total_bits * num_trials)
+
+def calculate_intra_chip_hd(all_bits):
+    """Calculate intra-chip Hamming distance: average bit differences between readings"""
+    num_trials = len(all_bits)
+    if num_trials < 2:
+        return 0.0, 0.0
+    
+    total_hd = 0
+    comparisons = 0
+    
+    # Compare all pairs of readings
+    for i in range(num_trials):
+        for j in range(i + 1, num_trials):
+            # Calculate Hamming distance between reading i and j
+            hd = sum(c1 != c2 for c1, c2 in zip(all_bits[i], all_bits[j]))
+            total_hd += hd
+            comparisons += 1
+    
+    avg_hd = total_hd / comparisons if comparisons > 0 else 0
+    avg_hd_percent = (avg_hd / len(all_bits[0])) * 100 if len(all_bits[0]) > 0 else 0
+    
+    return avg_hd, avg_hd_percent
+
 def analyze_board(board_folder, output_csv):
    # board_folder: Path to folder containing .bits files for a single board.
    # output_csv: Path where the per-bit statistics will be saved.
@@ -63,8 +98,17 @@ def analyze_board(board_folder, output_csv):
                 stability = 0.5  # can be considered unstable
             writer.writerow([pos, z, o, majority, stability])
 
+    # Calculate and print BER
+    ber = calculate_ber(zeros, ones, num_trials)
+    
+    # Calculate and print intra-chip Hamming distance
+    avg_hd, avg_hd_percent = calculate_intra_chip_hd(all_bits)
+    
     print(f"Saved {output_csv} with {num_bits} positions, {num_trials} trials.")
-    return zeros, ones, majority, stability
+    print(f"Bit Error Rate (BER): {ber:.6f} ({ber*100:.4f}%)")
+    print(f"Intra-chip Hamming Distance: {avg_hd:.2f} bits ({avg_hd_percent:.4f}%)")
+    
+    return zeros, ones, num_trials
 
 def compare_boards(stability_csv1, stability_csv2, output_csv):
 
