@@ -20,8 +20,8 @@ import bchlib
 # ---------------------------------------------------------------------------
 # Configuration (Simplified for m=8)
 # ---------------------------------------------------------------------------
-BCH_T   = 64          # errors to correct
-BCH_M   = 10           # m parameter for BCH code which dictates the block size we use
+BCH_T   = 23          # errors to correct
+BCH_M   = 9           # m parameter for BCH code which dictates the block size we use
 BOARD   = "1724_SRAM4_data"
 SECRET  = b"This is a secret" # depends on our payload size
 

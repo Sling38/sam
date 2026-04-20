@@ -30,7 +30,7 @@ def find_bch_parameters(n_list, target_k, ber, target_failure_rate):
 # n must be 2^m - 1 (e.g., 255, 511, 1023) // TODO: Probably automate this evenutally
 block_sizes = [255, 511, 1023, 2047, 4095, 8191]
 target_bits = 128
-my_ber = 0.04
-max_p_fail = 1e-6
+my_ber = 0.06
+max_p_fail = 10e-6
 
 find_bch_parameters(block_sizes, target_bits, my_ber, max_p_fail)
